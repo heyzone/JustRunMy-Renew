@@ -18,6 +18,16 @@ jobs:
         with:
           python-version: '3.11'
           
+      - name: 直接测 SOCKS5 连通性
+        env:
+          GOST_PROXY_TARGET: ${{ secrets.GOST_PROXY_TARGET }}
+        run: |
+          # 提取 host:port（去掉 socks5://user:pass@ 前缀）
+          TARGET=$(echo $GOST_PROXY_TARGET | sed 's|socks5://||' | sed 's|.*@||')
+          AUTH=$(echo $GOST_PROXY_TARGET | sed 's|socks5://||' | sed 's|@.*||')
+          echo "测试直连 SOCKS5..."
+          curl --socks5-hostname $TARGET -U $AUTH https://api.ipify.org
+
       - name: 🛡️ 启动 Gost 代理转发 (可选)
         env:
           GOST_PROXY_TARGET: ${{ secrets.GOST_PROXY_TARGET }}
