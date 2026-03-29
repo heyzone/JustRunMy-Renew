@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '10 5 * * *'
+
 jobs:
   renew:
     runs-on: ubuntu-latest
@@ -10,9 +11,15 @@ jobs:
     permissions:
       contents: write
       actions: write
+
     steps:
-      - name: 📥 下载代码
+      - name: 📥 从私库下载代码
         uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/JustRunMyAuto   # 替换成你的私库完整名称（owner/repo）
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          ref: main                                            # 如果不是 main 分支，请改成对应分支
+
       - name: 🐍 设置 Python
         uses: actions/setup-python@v4
         with:
@@ -110,6 +117,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "无变化，无需提交"
           else
-            git commit -m "?? 更新时间文件: $(date +'%Y-%m-%d %H:%M:%S')"
+            git commit -m "♻️ 更新时间文件: $(date +'%Y-%m-%d %H:%M:%S')"
             git push origin HEAD:main
           fi
